@@ -1,0 +1,35 @@
+{
+  "$id": "https://example.com/identity.schema.json",
+  "type": "object",
+  "properties": {
+    "traits": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Email address of the user"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "description": "User's password"
+        },
+        "registration_date": {
+          "type": "integer",
+          "description": "Unix timestamp of the registration date"
+        },
+        "last_login_date": {
+          "type": "integer",
+          "description": "Unix timestamp of the last login date"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Indicates if the user account is deleted"
+        }
+      },
+      "required": ["email", "password", "registration_date", "deleted"]
+    }
+  },
+  "required": ["traits"]
+}
