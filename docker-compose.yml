@@ -2,12 +2,12 @@ version: '3.8'
 
 services:
   kratos:
-    image: oryd/kratos:v0.11.0
+    image: oryd/kratos:v1.3.1
     container_name: kratos
     ports:
       - "4433:4433"
       - "4434:4434"
-    command: serve --dev --config /etc/config/kratos/kratos.yml
+    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
     volumes:
       - ./config:/etc/config/kratos:ro
       - ./migrations:/etc/migrations:ro
@@ -45,7 +45,7 @@ services:
       - PGPASSWORD=kratos
 
   kratos-migrate:
-    image: oryd/kratos:v0.11.0
+    image: oryd/kratos:v1.3.1
     container_name: kratos_migrate
     depends_on:
       - db
@@ -61,6 +61,24 @@ services:
       - '4437:4437'
     networks:
       - kratos_net
+
+  kratos-ui:
+    image: oryd/kratos-selfservice-ui-node:v1.3.1
+    container_name: kratos-ui
+    ports:
+      - "4455:4455"
+    environment:
+      - KRATOS_PUBLIC_URL=http://kratos:4433/
+      - KRATOS_BROWSER_URL=http://127.0.0.1:4433/
+      - COOKIE_SECRET=mySecureRandomKey123
+      - CSRF_COOKIE_NAME=__HOST-myCsrfToken
+      - CSRF_COOKIE_SECRET=mySecureCsrfKey123
+      - PORT=4455
+      - SECURITY_MODE=all
+    depends_on:
+      - kratos
+    volumes:
+      - ./config:/etc/config/kratos:ro
 
 volumes:
   db_data:
