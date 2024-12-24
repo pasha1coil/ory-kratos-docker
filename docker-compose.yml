@@ -71,7 +71,6 @@ services:
       - kratos_net
 
   kratos-ui:
-    image: oryd/kratos-selfservice-ui-node:v1.3.1
     ports:
       - "4455:4455"
     environment:
