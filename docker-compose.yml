@@ -7,6 +7,7 @@ services:
     ports:
       - "4433:4433"
       - "4434:4434"
+    restart: unless-stopped
     command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
     volumes:
       - ./config:/etc/config/kratos:ro
@@ -16,8 +17,9 @@ services:
       - LOG_LEVEL=debug
       - KRATOS_CONFIG_FILE=/etc/config/kratos/kratos.yml
     depends_on:
-      - db
-      - mailslurper
+      - kratos-migrate
+    networks:
+      - kratos_net
 
   db:
     image: postgres:14
@@ -30,6 +32,8 @@ services:
       - 5432:5432
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - kratos_net
 
   sql-migrate:
     image: postgres:14
@@ -43,6 +47,8 @@ services:
       - ./migrations:/migrations:ro
     environment:
       - PGPASSWORD=kratos
+    networks:
+      - kratos_net
 
   kratos-migrate:
     image: oryd/kratos:v1.3.1
@@ -53,10 +59,11 @@ services:
     command: migrate sql -e --yes --config /etc/config/kratos/kratos.yml
     volumes:
       - ./config:/etc/config/kratos:ro
+    networks:
+      - kratos_net
 
   mailslurper:
     image: oryd/mailslurper:latest-smtps
-    container_name: mailslurper
     ports:
       - '4436:4436'
       - '4437:4437'
@@ -80,10 +87,10 @@ services:
       - kratos
     volumes:
       - ./config:/etc/config/kratos:ro
+    networks:
+      - kratos_net
 
 volumes:
   db_data:
-
 networks:
   kratos_net:
-    driver: bridge
