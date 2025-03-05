@@ -28,6 +28,12 @@ func Test_Srv(t *testing.T) {
 	app.Use(middleware.KratosMiddleware(ory))
 
 	app.Get("/", handler)
+	app.Get("/public", func(c *fiber.Ctx) error {
+		return c.SendString("Public content")
+	})
+	app.Get("/private", func(c *fiber.Ctx) error {
+		return c.SendString("private content")
+	})
 
 	go func() {
 		if err := app.Listen(":3000"); err != nil {

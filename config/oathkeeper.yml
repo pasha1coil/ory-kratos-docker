@@ -1,0 +1,29 @@
+log:
+  level: debug
+
+serve:
+  proxy:
+    port: 4456
+  api:
+    port: 4457
+
+access_rules:
+  repositories:
+    - file:///etc/config/rules.json
+
+authenticators:
+  cookie_session:
+    enabled: true
+    config:
+      check_session_url: http://kratos:4433/sessions/whoami
+
+authorizers:
+  allow:
+    enabled: true
+
+mutators:
+  id_token:
+    enabled: true
+    config:
+      issuer_url: http://127.0.0.1:4456/
+      jwks_url: http://127.0.0.1:4456/.well-known/jwks.json
