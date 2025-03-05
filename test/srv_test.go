@@ -11,9 +11,6 @@ import (
 	"testing"
 )
 
-// for test
-// ory proxy http://localhost:3000 --project 'pj-id'
-
 func handler(c *fiber.Ctx) error {
 	return c.SendString("Hello, World!")
 }
@@ -23,7 +20,7 @@ func Test_Srv(t *testing.T) {
 	defer stop()
 
 	c := client.NewConfiguration()
-	c.Servers = client.ServerConfigurations{{URL: "http://localhost:4000/.ory"}}
+	c.Servers = client.ServerConfigurations{{URL: "http://localhost:4433"}}
 	ory := client.NewAPIClient(c)
 
 	app := fiber.New()
