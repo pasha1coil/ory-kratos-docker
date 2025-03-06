@@ -18,7 +18,7 @@
     },
     "mutators": [
       {
-        "handler": "noop"
+        "handler": "id_token"
       }
     ]
   }

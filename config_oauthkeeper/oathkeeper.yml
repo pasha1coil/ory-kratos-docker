@@ -15,7 +15,12 @@ authenticators:
   cookie_session:
     enabled: true
     config:
-      check_session_url: http://tsrv:3000/check #todo
+      check_session_url: http://kratos:4433/sessions/whoami #todo
+      preserve_path: true
+      extra_from: "@this"
+      subject_from: "identity.id"
+      only:
+        - ory_kratos_session
 
 authorizers:
   allow:
@@ -25,7 +30,11 @@ mutators:
   id_token: #todo
     enabled: true
     config:
-      issuer_url: http://oathkeeper:4455/
+      issuer_url: http://127.0.0.1:4455/
       jwks_url: file:///etc/config_oauthkeeper/jwks.json
+      claims: |
+        {
+          "session": {{ .Extra | toJson }}
+        }
   noop:
     enabled: true
