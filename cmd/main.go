@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/ory/client-go"
 	"log"
+	"ory-kratos-docker/middleware"
 	"os/signal"
 	"syscall"
 )
@@ -19,7 +21,11 @@ func main() {
 
 	app := fiber.New()
 
-	//app.Use(middleware.KratosMiddleware(ory))
+	c := client.NewConfiguration()
+	c.Servers = client.ServerConfigurations{{URL: "http://kratos:4433"}}
+	ory := client.NewAPIClient(c)
+
+	app.Use(middleware.KratosMiddleware(ory))
 
 	app.Get("/", handler)
 	app.Get("/public", func(c *fiber.Ctx) error {

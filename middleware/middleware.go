@@ -14,11 +14,13 @@ func KratosMiddleware(ory *client.APIClient) fiber.Handler {
 
 		sessionToken := ctx.Get("Cookie")
 		if sessionToken == "" {
+			fmt.Println("sessionToken nil")
 			return ctx.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
 		}
 
 		session, err := getSessionFromToken(ctx, ory, sessionToken)
 		if err != nil || !*session.Active {
+			fmt.Println("!*session.Active", err.Error())
 			return ctx.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
 		}
 
