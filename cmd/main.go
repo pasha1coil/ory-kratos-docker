@@ -1,31 +1,25 @@
-package test
+package main
 
 import (
 	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/ory/client-go"
-	"ory-kratos-docker/middleware"
+	"log"
 	"os/signal"
 	"syscall"
-	"testing"
 )
 
 func handler(c *fiber.Ctx) error {
 	return c.SendString("Hello, World!")
 }
 
-func Test_Srv(t *testing.T) {
+func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	c := client.NewConfiguration()
-	c.Servers = client.ServerConfigurations{{URL: "http://localhost:4433"}}
-	ory := client.NewAPIClient(c)
-
 	app := fiber.New()
 
-	app.Use(middleware.KratosMiddleware(ory))
+	//app.Use(middleware.KratosMiddleware(ory))
 
 	app.Get("/", handler)
 	app.Get("/public", func(c *fiber.Ctx) error {
@@ -35,9 +29,14 @@ func Test_Srv(t *testing.T) {
 		return c.SendString("private content")
 	})
 
+	app.Get("/check", func(c *fiber.Ctx) error {
+		sessionToken := c.Get("Cookie")
+		return c.Status(fiber.StatusOK).SendString(sessionToken)
+	})
+
 	go func() {
 		if err := app.Listen(":3000"); err != nil {
-			t.Fatalf("failed to start server: %v", err)
+			log.Fatalf("failed to start server: %v", err)
 		}
 	}()
 

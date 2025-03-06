@@ -1,0 +1,25 @@
+[
+  {
+    "id": "test",
+    "upstream": {
+      "url": "http://tsrv:3000"
+    },
+    "match": {
+      "url": "http://127.0.0.1:4455/public",
+      "methods": ["GET"]
+    },
+    "authenticators": [
+      {
+        "handler": "cookie_session"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    },
+    "mutators": [
+      {
+        "handler": "noop"
+      }
+    ]
+  }
+]

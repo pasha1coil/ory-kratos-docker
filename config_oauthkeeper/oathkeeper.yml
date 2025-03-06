@@ -1,0 +1,31 @@
+log:
+  level: debug
+
+serve:
+  proxy:
+    port: 4455
+  api:
+    port: 4456
+
+access_rules:
+  repositories:
+    - file:///etc/config_oauthkeeper/rules.json
+
+authenticators:
+  cookie_session:
+    enabled: true
+    config:
+      check_session_url: http://tsrv:3000/check #todo
+
+authorizers:
+  allow:
+    enabled: true
+
+mutators:
+  id_token: #todo
+    enabled: true
+    config:
+      issuer_url: http://oathkeeper:4455/
+      jwks_url: file:///etc/config_oauthkeeper/jwks.json
+  noop:
+    enabled: true

@@ -8,14 +8,14 @@ services:
       - "4433:4433"
       - "4434:4434"
     restart: unless-stopped
-    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+    command: serve -c /etc/config_kratos/kratos/kratos.yml --dev --watch-courier
     volumes:
-      - ./config:/etc/config/kratos:ro
+      - ./config_kratos:/etc/config_kratos/kratos:ro
       - ./migrations:/etc/migrations:ro
     environment:
       - DSN=postgres://kratos:kratos@db:5432/kratos?sslmode=disable
       - LOG_LEVEL=debug
-      - KRATOS_CONFIG_FILE=/etc/config/kratos/kratos.yml
+      - KRATOS_CONFIG_FILE=/etc/config_kratos/kratos/kratos.yml
     depends_on:
       - kratos-migrate
     networks:
@@ -56,9 +56,9 @@ services:
     depends_on:
       - db
       - sql-migrate
-    command: migrate sql -e --yes --config /etc/config/kratos/kratos.yml
+    command: migrate sql -e --yes --config /etc/config_kratos/kratos/kratos.yml
     volumes:
-      - ./config:/etc/config/kratos:ro
+      - ./config_kratos:/etc/config_kratos/kratos:ro
     networks:
       - kratos_net
 
@@ -72,9 +72,8 @@ services:
 
   kratos-ui:
     image: oryd/kratos-selfservice-ui-node:v1.3.1
-
     ports:
-      - "4455:4455"
+      - "4457:4455"
     environment:
       - KRATOS_PUBLIC_URL=http://kratos:4433/
       - KRATOS_BROWSER_URL=http://127.0.0.1:4433/
@@ -86,7 +85,7 @@ services:
     depends_on:
       - kratos
     volumes:
-      - ./config:/etc/config/kratos:ro
+      - ./config_kratos:/etc/config_kratos/kratos:ro
     networks:
       - kratos_net
 
@@ -94,19 +93,31 @@ services:
     image: oryd/oathkeeper:v0.40.6
     container_name: oathkeeper
     restart: unless-stopped
+    command: serve -c /etc/config_oauthkeeper/oathkeeper.yml
     ports:
+      - "4455:4455"
       - "4456:4456"
-      - "4457:4457"
-    environment:
-      - LOG_LEVEL=debug
-      - OATHKEEPER_CONFIG_FILE=/etc/config/oathkeeper.yml
     volumes:
-      - ./config/oathkeeper.yml:/etc/config/oathkeeper.yml:ro
-      - ./config/rules.json:/etc/config/rules.json:ro
+      - ./config_oauthkeeper/oathkeeper.yml:/etc/config_oauthkeeper/oathkeeper.yml
+      - ./config_oauthkeeper/rules.json:/etc/config_oauthkeeper/rules.json
+      - ./config_oauthkeeper/jwks.json:/etc/config_oauthkeeper/jwks.json
     depends_on:
       - kratos
     networks:
       - kratos_net
+
+  tsrv:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tsrv
+    ports:
+      - "3000:3000"
+    networks:
+      - kratos_net
+    depends_on:
+      - kratos
+      - oathkeeper
 
 volumes:
   db_data:
