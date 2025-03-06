@@ -10,7 +10,7 @@ serve:
 access_rules:
   repositories:
     - file:///etc/config_oauthkeeper/rules.json
-
+#https://github.com/ory/kratos/blob/master/contrib/quickstart/oathkeeper/access-rules.yml
 authenticators:
   cookie_session:
     enabled: true
