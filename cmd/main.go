@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/ory/client-go"
 	"log"
 	"ory-kratos-docker/middleware"
 	"os/signal"
@@ -21,23 +20,22 @@ func main() {
 
 	app := fiber.New()
 
-	c := client.NewConfiguration()
-	c.Servers = client.ServerConfigurations{{URL: "http://kratos:4433"}}
-	ory := client.NewAPIClient(c)
+	//c := client.NewConfiguration()
+	//c.Servers = client.ServerConfigurations{{URL: "http://kratos:4433"}}
+	//ory := client.NewAPIClient(c)
 
-	app.Use(middleware.KratosMiddleware(ory))
+	app.Use(middleware.OauthKeeperMiddleware())
 
 	app.Get("/", handler)
 	app.Get("/public", func(c *fiber.Ctx) error {
 		return c.SendString("Public content")
 	})
 	app.Get("/private", func(c *fiber.Ctx) error {
-		return c.SendString("private content")
-	})
-
-	app.Get("/check", func(c *fiber.Ctx) error {
-		sessionToken := c.Get("Cookie")
-		return c.Status(fiber.StatusOK).SendString(sessionToken)
+		token, ok := c.Context().UserValue(middleware.CtxTokenKey).(string)
+		if !ok {
+			return c.SendStatus(fiber.StatusUnauthorized)
+		}
+		return c.SendString("private content, token: " + token)
 	})
 
 	go func() {

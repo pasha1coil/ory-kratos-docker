@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/ory/client-go"
+	"strings"
 )
+
+const CtxTokenKey = "token-key"
 
 func KratosMiddleware(ory *client.APIClient) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
@@ -38,4 +41,17 @@ func getSessionFromToken(ctx *fiber.Ctx, ory *client.APIClient, token string) (*
 	}
 
 	return session, nil
+}
+
+func OauthKeeperMiddleware() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		token := strings.ReplaceAll(ctx.Get("Authorization"), "Bearer ", "")
+		if token == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "empty token")
+		}
+
+		ctx.Locals(CtxTokenKey, token)
+
+		return ctx.Next()
+	}
 }
